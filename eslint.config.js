@@ -12,6 +12,10 @@ export default [
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      'no-plusplus': 'off',
+      'no-console': 'off',
+    },
   },
 ];
 
