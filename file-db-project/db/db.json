@@ -1,0 +1,24 @@
+{
+  "newspost": [
+    {
+      "id": 1,
+      "title": "New Post",
+      "text": "This is a new post.",
+      "createDate": "2024-06-01"
+    }
+  ],
+  "np": [
+    {
+      "id": 1,
+      "title": 123,
+      "text": true,
+      "createDate": "not-date"
+    }
+  ],
+  "np_check": [
+    {
+      "id": 1,
+      "createDate": "2026-02-27T20:56:09.583Z"
+    }
+  ]
+}
