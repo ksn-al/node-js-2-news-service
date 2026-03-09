@@ -1,23 +1,20 @@
 {
-  "name": "node",
+  "name": "filedb-typescript",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "File-based JSON database module written in TypeScript",
+  "main": "dist/fileDB/index.js",
+  "types": "dist/fileDB/index.d.ts",
   "scripts": {
-    "start": "nodemon index.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "build": "tsc",
+    "test": "npm run build && node dist/test.js",
+    "dev": "ts-node src/test.ts"
   },
-  "author": "",
+  "keywords": ["database", "filedb", "json", "typescript"],
+  "author": "Ksenia",
   "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "nodemon": "^3.1.11"
-  },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.3",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.32.0"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0"
   }
 }
