@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+
+# frontend artifacts
+client/node_modules/
+client/build/
+client/coverage/
+
+# env files
+.env
+.env.*

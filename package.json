@@ -7,14 +7,25 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node dist/test.js",
-    "dev": "ts-node src/test.ts"
+    "dev": "ts-node src/test.ts",
+    "server-dev": "ts-node src/server/index.ts",
+    "server": "npm run build && node dist/server/index.js"
   },
-  "keywords": ["database", "filedb", "json", "typescript"],
+  "keywords": [
+    "database",
+    "filedb",
+    "json",
+    "typescript"
+  ],
   "author": "Ksenia",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "ts-node": "^10.0.0"
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
