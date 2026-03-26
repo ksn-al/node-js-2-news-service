@@ -29,11 +29,12 @@ console.log('');
 
 // === TEST: create() ===
 console.log('2. Створити новий запис (create):');
-const created = newspostTable.create({
+const createPayload = {
   title: 'Second Post',
   text: 'Hello again',
-  hackerField: 123 as any, // not in schema, should be ignored
-});
+  hackerField: 123, // not in schema, should be ignored
+} as unknown as Omit<Newspost, 'id'>;
+const created = newspostTable.create(createPayload);
 console.log('CREATED:', created);
 console.log('');
 
@@ -45,11 +46,12 @@ console.log('');
 
 // === TEST: update() ===
 console.log('4. Оновити запис (update):');
-const updated = newspostTable.update(created.id, {
+const updatePayload = {
   title: 'Updated title',
-  id: 999 as any, // should be ignored
-  extra: 'nope' as any, // should be ignored
-});
+  id: 999, // should be ignored
+  extra: 'nope', // should be ignored
+} as unknown as Partial<Omit<Newspost, 'id'>>;
+const updated = newspostTable.update(created.id, updatePayload);
 console.log('UPDATED:', updated);
 console.log('');
 

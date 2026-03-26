@@ -1,15 +1,16 @@
 ﻿import { Schema } from './types';
 
 class SchemaRegistry {
-  private schemas: Map<string, Schema> = new Map();
+  private readonly schemas: Map<string, Schema> = new Map();
 
   registerSchema(tableName: string, schema: Schema): void {
-    if (!tableName || typeof tableName !== 'string') {
-      throw new Error('Table name must be a string');
+    if (tableName.trim().length === 0) {
+      throw new Error('Table name must not be empty');
     }
-    if (!schema || typeof schema !== 'object') {
-      throw new Error('Schema must be an object');
+    if (Object.keys(schema).length === 0) {
+      throw new Error('Schema must contain at least one field');
     }
+
     this.schemas.set(tableName, schema);
   }
 

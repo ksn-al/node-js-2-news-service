@@ -7,8 +7,15 @@ export interface NewspostData {
     createDate?:string;
 }
 
-export async function getAllNewsposts(): Promise<NewspostData[]> {
-    const response = await fetch(`${API_BASE}/newsposts`);
+export interface PaginationParams {
+    page?: number;
+    size?: number;
+}
+
+export async function getAllNewsposts(params: PaginationParams = {}): Promise<NewspostData[]> {
+    const page = typeof params.page === 'number' && Number.isInteger(params.page) && params.page >= 0 ? params.page : 0;
+    const size = typeof params.size === 'number' && Number.isInteger(params.size) && params.size > 0 ? params.size : 10;
+    const response = await fetch(`${API_BASE}/newsposts?page=${page}&size=${size}`);
     if (!response.ok)throw new Error ('Failed to fetch newsposts');
     return response.json();
 }

@@ -4,7 +4,6 @@ export type Schema = Record<string, FieldType>;
 
 export interface BaseRecord {
   id: number;
-  [key: string]: any;
 }
 
 export interface Newspost extends BaseRecord {
@@ -13,7 +12,12 @@ export interface Newspost extends BaseRecord {
   createDate: string;
 }
 
-export type CreateInput<T extends BaseRecord> = Omit<T, 'id'>;
+type OptionalCreateDate<T extends BaseRecord> = 'createDate' extends keyof T
+  ? { createDate?: T[Extract<'createDate', keyof T>] }
+  : {};
+
+export type CreateInput<T extends BaseRecord> =
+  Omit<T, 'id' | 'createDate'> & OptionalCreateDate<T>;
 export type UpdateInput<T extends BaseRecord> = Partial<Omit<T, 'id'>>;
 export type NormalizedValue = string | number | boolean | null | undefined;
 

@@ -1,24 +1,24 @@
 import { Router } from 'express';
-import { registerSchema, getTable } from '../../fileDB';
-import { Newspost } from '../../fileDB/types';
+import newspostsService from '../modules/newsposts/service';
+import { PaginationParams } from '../modules/newsposts/types';
 
 const router = Router();
 
-// Реєструємо схему для таблиці newsposts
-const newspostSchema = {
-  id: Number,
-  title: String,
-  text: String,
-  createDate: Date,
-};
+function parsePaginationParams(query: Record<string, unknown>): PaginationParams {
+  const pageRaw = typeof query.page === 'string' ? Number(query.page) : NaN;
+  const sizeRaw = typeof query.size === 'string' ? Number(query.size) : NaN;
 
-registerSchema('newsposts', newspostSchema);
-const newspostTable = getTable<Newspost>('newsposts');
+  const page = Number.isInteger(pageRaw) && pageRaw >= 0 ? pageRaw : 0;
+  const size = Number.isInteger(sizeRaw) && sizeRaw > 0 ? sizeRaw : 10;
+
+  return { page, size };
+}
 
 // GET /api/newsposts - отримати все новини
 router.get('/', (req, res) => {
   try {
-    const newsposts = newspostTable.getAll();
+    const params = parsePaginationParams(req.query as Record<string, unknown>);
+    const newsposts = newspostsService.getAll(params);
     res.json(newsposts);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const id = Number(req.params.id);
-    const newspost = newspostTable.getById(id);
+    const newspost = newspostsService.getById(id);
     
     if (!newspost) {
       return res.status(404).json({ error: 'Newspost not found' });
@@ -50,7 +50,7 @@ router.post('/', (req, res) => {
       return res.status(400).json({ error: 'Title and text are required' });
     }
     
-    const newNewspost = newspostTable.create({
+    const newNewspost = newspostsService.create({
       title,
       text,
     });
@@ -65,7 +65,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   try {
     const id = Number(req.params.id);
-    const updatedNewspost = newspostTable.update(id, req.body);
+    const updatedNewspost = newspostsService.update(id, req.body);
     
     if (!updatedNewspost) {
       return res.status(404).json({ error: 'Newspost not found' });
@@ -81,7 +81,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   try {
     const id = Number(req.params.id);
-    const deletedId = newspostTable.delete(id);
+    const deletedId = newspostsService.delete(id);
     
     if (!deletedId) {
       return res.status(404).json({ error: 'Newspost not found' });
