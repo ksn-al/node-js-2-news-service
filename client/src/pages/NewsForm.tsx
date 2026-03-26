@@ -4,6 +4,8 @@ import {
   createNewspost,
   deleteNewspost,
   getNewspostById,
+  NEWSPOST_GENRES,
+  NewspostGenre,
   updateNewspost,
 } from '../api';
 
@@ -14,6 +16,8 @@ export default function NewsForm() {
 
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [genre, setGenre] = useState<NewspostGenre>('Other');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +36,8 @@ export default function NewsForm() {
         const news = await getNewspostById(Number(id));
         setTitle(news.title);
         setText(news.text);
+        setGenre(news.genre);
+        setIsPrivate(news.isPrivate);
       } catch (e) {
         setError('Не вдалося завантажити новину для редагування');
       } finally {
@@ -51,6 +57,16 @@ export default function NewsForm() {
       return;
     }
 
+    if (title.trim().length > 50) {
+      setError('Заголовок не може перевищувати 50 символів');
+      return;
+    }
+
+    if (text.trim().length > 256) {
+      setError('Текст не може перевищувати 256 символів');
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -59,12 +75,16 @@ export default function NewsForm() {
         const updated = await updateNewspost(Number(id), {
           title: title.trim(),
           text: text.trim(),
+          genre,
+          isPrivate,
         });
         navigate(`/newsposts/${updated.id}`);
       } else {
         const created = await createNewspost({
           title: title.trim(),
           text: text.trim(),
+          genre,
+          isPrivate,
         });
         navigate(`/newsposts/${created.id}`);
       }
@@ -133,6 +153,29 @@ export default function NewsForm() {
           onChange={(e) => setText(e.target.value)}
           required
         />
+
+        <label htmlFor="genre">Жанр</label>
+        <select
+          id="genre"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value as NewspostGenre)}
+        >
+          {NEWSPOST_GENRES.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="isPrivate" className="checkbox-row">
+          <input
+            id="isPrivate"
+            type="checkbox"
+            checked={isPrivate}
+            onChange={(e) => setIsPrivate(e.target.checked)}
+          />
+          Приватна новина
+        </label>
 
         {error ? <p className="status error">{error}</p> : null}
 

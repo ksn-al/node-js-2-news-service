@@ -10,6 +10,8 @@ const newspostSchema = {
   id: Number,
   title: String,
   text: String,
+  genre: String,
+  isPrivate: Boolean,
   createDate: Date,
 };
 
@@ -32,6 +34,8 @@ console.log('2. Створити новий запис (create):');
 const createPayload = {
   title: 'Second Post',
   text: 'Hello again',
+  genre: 'Sport',
+  isPrivate: false,
   hackerField: 123, // not in schema, should be ignored
 } as unknown as Omit<Newspost, 'id'>;
 const created = newspostTable.create(createPayload);
@@ -48,6 +52,7 @@ console.log('');
 console.log('4. Оновити запис (update):');
 const updatePayload = {
   title: 'Updated title',
+  genre: 'Business',
   id: 999, // should be ignored
   extra: 'nope', // should be ignored
 } as unknown as Partial<Omit<Newspost, 'id'>>;

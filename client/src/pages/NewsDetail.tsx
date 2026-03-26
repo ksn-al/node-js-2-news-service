@@ -51,6 +51,9 @@ export default function NewsDetail() {
       <div className="page-title-block">
         <span className="page-kicker">Перегляд новини</span>
         <h1>{news.title}</h1>
+        <p className="page-subtitle">
+          Жанр: {news.genre} | {news.isPrivate ? 'Приватна' : 'Публічна'}
+        </p>
       </div>
 
       <div className="content-panel">

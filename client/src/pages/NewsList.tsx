@@ -47,9 +47,10 @@ export default function NewsList() {
         <div className="news-list">
           {newsposts.map((item) => (
             <Link key={item.id} to={`/newsposts/${item.id}`} className="news-card news-card-link">
-              <span className="news-badge">Новина</span>
+              <span className="news-badge">{item.genre}</span>
               <h2>{item.title}</h2>
               <p className="text-preview">{item.text}</p>
+              <p className="card-meta">{item.isPrivate ? 'Приватна новина' : 'Публічна новина'}</p>
             </Link>
           ))}
         </div>

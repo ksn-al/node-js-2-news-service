@@ -6,9 +6,14 @@ export interface BaseRecord {
   id: number;
 }
 
+export const NEWSPOST_GENRES = ['Politic', 'Business', 'Sport', 'Other'] as const;
+export type NewspostGenre = (typeof NEWSPOST_GENRES)[number];
+
 export interface Newspost extends BaseRecord {
   title: string;
   text: string;
+  genre: NewspostGenre;
+  isPrivate: boolean;
   createDate: string;
 }
 

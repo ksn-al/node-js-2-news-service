@@ -1,11 +1,15 @@
 import express from 'express';
 import path from 'path';
+import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
+import { logger } from './logger';
 import newspostsRouter from './routes/newsposts';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(requestLogger);
 
 // API маршруты
 app.use('/api/newsposts', newspostsRouter);
@@ -24,10 +28,12 @@ app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
+app.use(errorHandler);
+
 // Запуск сервера
 const HOST = process.env.HOST || 'localhost';
 const PORT = Number(process.env.PORT) || 8000;
 
 app.listen(PORT, HOST, () => {
-  console.log(`✅ Сервер запущений на http://${HOST}:${PORT}`);
+  logger.info(`Server started at http://${HOST}:${PORT}`);
 });

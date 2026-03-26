@@ -1,26 +1,59 @@
 import { Newspost } from '../../../fileDB/types';
+import { NewspostsServiceError } from '../../errors/NewspostsServiceError';
 import newspostsRepository from './repository';
 import { PaginationParams, CreateNewspostInput, UpdateNewspostInput } from './types';
 
 class NewspostsService {
   getAll(params: PaginationParams): Newspost[] {
-    return newspostsRepository.getAll(params);
+    try {
+      return newspostsRepository.getAll(params);
+    } catch (error) {
+      throw this.wrapError('Failed to fetch newsposts', error);
+    }
   }
 
   getById(id: number): Newspost | null {
-    return newspostsRepository.getById(id);
+    try {
+      return newspostsRepository.getById(id);
+    } catch (error) {
+      throw this.wrapError(`Failed to fetch newspost with id ${id}`, error);
+    }
   }
 
   create(data: CreateNewspostInput): Newspost {
-    return newspostsRepository.create(data);
+    try {
+      return newspostsRepository.create(data);
+    } catch (error) {
+      throw this.wrapError('Failed to create newspost', error);
+    }
   }
 
   update(id: number, update: UpdateNewspostInput): Newspost | null {
-    return newspostsRepository.update(id, update);
+    try {
+      return newspostsRepository.update(id, update);
+    } catch (error) {
+      throw this.wrapError(`Failed to update newspost with id ${id}`, error);
+    }
   }
 
   delete(id: number): number | null {
-    return newspostsRepository.delete(id);
+    try {
+      return newspostsRepository.delete(id);
+    } catch (error) {
+      throw this.wrapError(`Failed to delete newspost with id ${id}`, error);
+    }
+  }
+
+  throwDemoError(): never {
+    throw new NewspostsServiceError('NewspostsService demo error');
+  }
+
+  private wrapError(message: string, error: unknown): NewspostsServiceError {
+    if (error instanceof NewspostsServiceError) {
+      return error;
+    }
+
+    return new NewspostsServiceError(message, error);
   }
 }
 

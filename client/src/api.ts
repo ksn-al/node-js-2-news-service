@@ -1,9 +1,14 @@
 const API_BASE = '/api';
 
+export const NEWSPOST_GENRES = ['Politic', 'Business', 'Sport', 'Other'] as const;
+export type NewspostGenre = (typeof NEWSPOST_GENRES)[number];
+
 export interface NewspostData {
     id?:number;
     title:string;
     text:string;
+    genre:NewspostGenre;
+    isPrivate:boolean;
     createDate?:string;
 }
 
@@ -26,7 +31,7 @@ export async function getNewspostById(id:number): Promise<NewspostData>{
     return response.json();
 }
 
-export async function createNewspost(data: Omit<NewspostData, 'id'>): Promise<NewspostData> {
+export async function createNewspost(data: Omit<NewspostData, 'id' | 'createDate'>): Promise<NewspostData> {
     const response = await fetch(`${API_BASE}/newsposts`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -36,7 +41,7 @@ export async function createNewspost(data: Omit<NewspostData, 'id'>): Promise<Ne
     return response.json();
 }
 
-export async function updateNewspost(id:number, data: Partial<NewspostData>): Promise<NewspostData> {
+export async function updateNewspost(id:number, data: Partial<Omit<NewspostData, 'id' | 'createDate'>>): Promise<NewspostData> {
     const response = await fetch(`${API_BASE}/newsposts/${id}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},

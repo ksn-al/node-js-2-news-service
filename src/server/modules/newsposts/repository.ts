@@ -6,6 +6,8 @@ const newspostSchema = {
   id: Number,
   title: String,
   text: String,
+  genre: String,
+  isPrivate: Boolean,
   createDate: Date,
 };
 
