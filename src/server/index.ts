@@ -1,18 +1,24 @@
 import express from 'express';
 import path from 'path';
+import authRouter from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { logger } from './logger';
+import passport, { requireAuth } from './passport';
 import newspostsRouter from './routes/newsposts';
+import userRouter from './routes/user';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(requestLogger);
+app.use(passport.initialize());
 
 // API маршруты
-app.use('/api/newsposts', newspostsRouter);
+app.use('/auth', authRouter);
+app.use('/api/newsposts', requireAuth, newspostsRouter);
+app.use('/user', userRouter);
 
 // Роздача статичних файлів (фронтенд)
 const publicPath = path.join(__dirname, '../../client/build');

@@ -17,6 +17,11 @@ export interface Newspost extends BaseRecord {
   createDate: string;
 }
 
+export interface User extends BaseRecord {
+  email: string;
+  password: string;
+}
+
 type OptionalCreateDate<T extends BaseRecord> = 'createDate' extends keyof T
   ? { createDate?: T[Extract<'createDate', keyof T>] }
   : {};

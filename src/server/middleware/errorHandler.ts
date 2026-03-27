@@ -1,6 +1,8 @@
 import { ErrorRequestHandler } from 'express';
+import { AuthServiceError } from '../errors/AuthServiceError';
 import { ValidationError } from '../errors/ValidationError';
 import { NewspostsServiceError } from '../errors/NewspostsServiceError';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
 import { logger } from '../logger';
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
@@ -19,6 +21,15 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
     return;
   }
 
+  if (error instanceof UnauthorizedError) {
+    logger.warn(error.message, {
+      method: req.method,
+      url: req.originalUrl
+    });
+    res.status(401).json({ message: error.message });
+    return;
+  }
+
   const normalizedError = error instanceof Error
     ? error
     : new Error('Internal server error');
@@ -29,7 +40,7 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
     stack: normalizedError.stack
   });
 
-  if (error instanceof NewspostsServiceError) {
+  if (error instanceof NewspostsServiceError || error instanceof AuthServiceError) {
     res.status(500).json({ message: normalizedError.message });
     return;
   }
