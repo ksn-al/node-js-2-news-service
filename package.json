@@ -9,7 +9,13 @@
     "test": "npm run build && node dist/test.js",
     "dev": "ts-node src/test.ts",
     "server-dev": "ts-node src/server/index.ts",
-    "server": "npm run build && node dist/server/index.js"
+    "server": "npm run build && node dist/server/index.js",
+    "pg:create-table": "node createTable.js",
+    "pg:get-all": "node getAll.js",
+    "pg:get-by-id": "node getById.js",
+    "pg:insert": "node insert.js",
+    "pg:update": "node update.js",
+    "pg:delete": "node delete.js"
   },
   "keywords": [
     "database",
@@ -36,6 +42,7 @@
     "jsonwebtoken": "^9.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pg": "^8.20.0",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   }
