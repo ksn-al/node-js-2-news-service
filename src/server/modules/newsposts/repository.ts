@@ -32,6 +32,9 @@ class NewspostsRepository {
   async getAll(params: PaginationParams): Promise<Newspost[]> {
     const { page, size } = params;
     const records = await this.newspostRepository.find({
+      where: {
+        deleted: false
+      },
       order: {
         createDate: 'DESC',
         id: 'DESC'
@@ -44,7 +47,7 @@ class NewspostsRepository {
   }
 
   async getById(id: number): Promise<Newspost | null> {
-    const record = await this.newspostRepository.findOne({ where: { id } });
+    const record = await this.newspostRepository.findOne({ where: { id, deleted: false } });
     return record ? mapNewspost(record) : null;
   }
 
@@ -57,6 +60,7 @@ class NewspostsRepository {
 
     const createdRecord = this.newspostRepository.create({
       ...data,
+      deleted: false,
       author
     });
 
@@ -65,7 +69,7 @@ class NewspostsRepository {
   }
 
   async update(id: number, update: UpdateNewspostInput): Promise<Newspost | null> {
-    const existingRecord = await this.newspostRepository.findOne({ where: { id } });
+    const existingRecord = await this.newspostRepository.findOne({ where: { id, deleted: false } });
 
     if (!existingRecord) {
       return null;
@@ -80,8 +84,18 @@ class NewspostsRepository {
   }
 
   async delete(id: number): Promise<number | null> {
-    const result = await this.newspostRepository.delete({ id });
-    return result.affected ? id : null;
+    const record = await this.newspostRepository.findOne({ where: { id, deleted: false } });
+
+    if (!record) {
+      return null;
+    }
+
+    await this.newspostRepository.save({
+      ...record,
+      deleted: true
+    });
+
+    return id;
   }
 }
 

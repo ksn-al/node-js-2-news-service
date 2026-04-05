@@ -9,7 +9,7 @@ class AuthRepository {
 
   async findByEmail(email: string): Promise<UserRecord | null> {
     const normalizedEmail = email.trim().toLowerCase();
-    const user = await this.repository.findOne({ where: { email: normalizedEmail } });
+    const user = await this.repository.findOne({ where: { email: normalizedEmail, deleted: false } });
 
     return user
       ? {
@@ -23,7 +23,8 @@ class AuthRepository {
   async createUser(email: string, passwordHash: string): Promise<UserRecord> {
     const savedUser = await this.repository.save({
       email: email.trim().toLowerCase(),
-      password: passwordHash
+      password: passwordHash,
+      deleted: false
     });
 
     return {
@@ -34,7 +35,7 @@ class AuthRepository {
   }
 
   async getById(id: number): Promise<UserRecord | null> {
-    const user = await this.repository.findOne({ where: { id } });
+    const user = await this.repository.findOne({ where: { id, deleted: false } });
 
     return user
       ? {

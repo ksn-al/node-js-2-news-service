@@ -10,6 +10,8 @@
     "dev": "ts-node src/test.ts",
     "server-dev": "ts-node src/server/index.ts",
     "server": "npm run build && node dist/server/index.js",
+    "db:migrate": "ts-node src/server/database/runMigrations.ts",
+    "db:seed": "ts-node src/server/database/seed.ts",
     "pg:create-table": "node createTable.js",
     "pg:get-all": "node getAll.js",
     "pg:get-by-id": "node getById.js",
@@ -42,6 +44,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "ajv": "^8.18.0",
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",

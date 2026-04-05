@@ -7,6 +7,7 @@ export interface DbUser {
   id: number;
   email: string;
   password: string;
+  deleted: boolean;
   newsposts?: DbNewspost[];
 }
 
@@ -17,6 +18,7 @@ export interface DbNewspost {
   genre: NewspostGenre;
   isPrivate: boolean;
   createDate: Date;
+  deleted: boolean;
   author: DbUser;
 }
 
@@ -35,8 +37,18 @@ export const UserEntity = new EntitySchema<DbUser>({
     },
     password: {
       type: String
+    },
+    deleted: {
+      type: Boolean,
+      default: false
     }
   },
+  indices: [
+    {
+      name: 'IDX_users_deleted',
+      columns: ['deleted']
+    }
+  ],
   relations: {
     newsposts: {
       type: 'one-to-many',
@@ -48,7 +60,7 @@ export const UserEntity = new EntitySchema<DbUser>({
 
 export const NewspostEntity = new EntitySchema<DbNewspost>({
   name: 'Newspost',
-  tableName: 'newsposts',
+  tableName: 'posts',
   columns: {
     id: {
       type: Number,
@@ -56,6 +68,7 @@ export const NewspostEntity = new EntitySchema<DbNewspost>({
       generated: true
     },
     title: {
+      name: 'header',
       type: String,
       length: 50
     },
@@ -76,8 +89,22 @@ export const NewspostEntity = new EntitySchema<DbNewspost>({
       type: 'timestamp',
       createDate: true,
       default: () => 'CURRENT_TIMESTAMP'
+    },
+    deleted: {
+      type: Boolean,
+      default: false
     }
   },
+  indices: [
+    {
+      name: 'IDX_posts_deleted',
+      columns: ['deleted']
+    },
+    {
+      name: 'IDX_posts_create_date',
+      columns: ['createDate']
+    }
+  ],
   relations: {
     author: {
       type: 'many-to-one',
