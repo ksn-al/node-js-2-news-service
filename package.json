@@ -15,7 +15,13 @@
     "pg:get-by-id": "node getById.js",
     "pg:insert": "node insert.js",
     "pg:update": "node update.js",
-    "pg:delete": "node delete.js"
+    "pg:delete": "node delete.js",
+    "videos:create-table": "node videos-scripts/createTable.js",
+    "videos:insert": "node videos-scripts/insert.js",
+    "videos:paginate": "node videos-scripts/paginate.js",
+    "videos:find": "node videos-scripts/find.js",
+    "videos:group": "node videos-scripts/group.js",
+    "videos:top": "node videos-scripts/top.js"
   },
   "keywords": [
     "database",

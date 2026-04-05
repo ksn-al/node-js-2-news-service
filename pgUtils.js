@@ -43,12 +43,32 @@ function requireArg(args, name, customMessage) {
   return value;
 }
 
-function requireIntArg(args, name) {
-  const rawValue = requireArg(args, name, `Argument --${name} is required.`);
+function parsePositiveIntArg(args, name, fallbackValue) {
+  const rawValue = args[name] ?? fallbackValue;
+
+  if (rawValue === undefined || rawValue === '') {
+    throw new Error(`Argument --${name} is required.`);
+  }
+
   const parsedValue = Number(rawValue);
 
   if (!Number.isInteger(parsedValue) || parsedValue < 1) {
     throw new Error(`Argument --${name} must be a positive integer.`);
+  }
+
+  return parsedValue;
+}
+
+function requireIntArg(args, name) {
+  return parsePositiveIntArg(args, name);
+}
+
+function requireFloatArg(args, name) {
+  const rawValue = requireArg(args, name, `Argument --${name} is required.`);
+  const parsedValue = Number(rawValue);
+
+  if (!Number.isFinite(parsedValue)) {
+    throw new Error(`Argument --${name} must be a number.`);
   }
 
   return parsedValue;
@@ -95,6 +115,8 @@ module.exports = {
   parseArgs,
   requireArg,
   requireIntArg,
+  requireFloatArg,
+  parsePositiveIntArg,
   withClient,
   printJson,
   showConnectionHelp
