@@ -1,7 +1,6 @@
-import { Newspost } from '../../../fileDB/types';
 import { NewspostsServiceError } from '../../errors/NewspostsServiceError';
 import newspostsRepository from './repository';
-import { PaginationParams, CreateNewspostInput, UpdateNewspostInput } from './types';
+import { PaginationParams, CreateNewspostInput, Newspost, UpdateNewspostInput } from './types';
 
 class NewspostsService {
   async getAll(params: PaginationParams): Promise<Newspost[]> {
@@ -20,9 +19,9 @@ class NewspostsService {
     }
   }
 
-  async create(data: CreateNewspostInput): Promise<Newspost> {
+  async create(data: CreateNewspostInput, authorId: number): Promise<Newspost> {
     try {
-      return await newspostsRepository.create(data);
+      return await newspostsRepository.create(data, authorId);
     } catch (error) {
       throw this.wrapError('Failed to create newspost', error);
     }

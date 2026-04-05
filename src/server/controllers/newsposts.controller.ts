@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
 import newspostsService from '../modules/newsposts/service';
 import { validateCreateNewspost, validateUpdateNewspost } from '../modules/newsposts/validation';
 import { parsePaginationParams } from '../utils/parsePaginationParams';
 import { parsePositiveIdParam } from '../utils/parsePositiveIdParam';
 import { withErrorHandling } from '../utils/withErrorHandling';
+import { AuthenticatedUser } from '../modules/auth/types';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
 
 export const getNewsposts = withErrorHandling(async (req, res) => {
   const params = parsePaginationParams(req.query as Record<string, unknown>);
@@ -28,8 +29,14 @@ export const getNewspostById = withErrorHandling(async (req, res) => {
 });
 
 export const createNewspost = withErrorHandling(async (req, res) => {
+  const currentUser = req.user as AuthenticatedUser | undefined;
+
+  if (!currentUser) {
+    throw new UnauthorizedError('Request is not authorized');
+  }
+
   const payload = validateCreateNewspost(req.body);
-  const newNewspost = await newspostsService.create(payload);
+  const newNewspost = await newspostsService.create(payload, currentUser.id);
 
   res.status(201).json(newNewspost);
 });

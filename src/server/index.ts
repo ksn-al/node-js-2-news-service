@@ -4,9 +4,10 @@ import authRouter from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { logger } from './logger';
-import passport, { requireAuth } from './passport';
+import passport from './passport';
 import newspostsRouter from './routes/newsposts';
 import userRouter from './routes/user';
+import { initializeDatabase } from './database/dataSource';
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(passport.initialize());
 
 // API маршруты
 app.use('/auth', authRouter);
-app.use('/api/newsposts', requireAuth, newspostsRouter);
+app.use('/api/newsposts', newspostsRouter);
 app.use('/user', userRouter);
 
 // Роздача статичних файлів (фронтенд)
@@ -40,6 +41,17 @@ app.use(errorHandler);
 const HOST = process.env.HOST || 'localhost';
 const PORT = Number(process.env.PORT) || 8000;
 
-app.listen(PORT, HOST, () => {
-  logger.info(`Server started at http://${HOST}:${PORT}`);
-});
+async function startServer(): Promise<void> {
+  try {
+    await initializeDatabase();
+
+    app.listen(PORT, HOST, () => {
+      logger.info(`Server started at http://${HOST}:${PORT}`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server', { error });
+    process.exit(1);
+  }
+}
+
+void startServer();

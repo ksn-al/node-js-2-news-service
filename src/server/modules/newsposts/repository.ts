@@ -1,42 +1,87 @@
-import { getTable, registerSchema } from '../../../fileDB';
-import { Newspost } from '../../../fileDB/types';
-import { PaginationParams, CreateNewspostInput, UpdateNewspostInput } from './types';
+import { AppDataSource } from '../../database/dataSource';
+import { DbNewspost, NewspostEntity, UserEntity } from '../../database/models';
+import { PaginationParams, CreateNewspostInput, Newspost, UpdateNewspostInput } from './types';
 
-const newspostSchema = {
-  id: Number,
-  title: String,
-  text: String,
-  genre: String,
-  isPrivate: Boolean,
-  createDate: Date,
-};
-
-registerSchema('newsposts', newspostSchema);
-
-const newspostTable = getTable<Newspost>('newsposts');
+function mapNewspost(record: DbNewspost): Newspost {
+  return {
+    id: record.id,
+    title: record.title,
+    text: record.text,
+    genre: record.genre,
+    isPrivate: record.isPrivate,
+    createDate:
+      record.createDate instanceof Date
+        ? record.createDate.toISOString()
+        : new Date(record.createDate).toISOString(),
+    author: {
+      id: record.author.id,
+      email: record.author.email
+    }
+  };
+}
 
 class NewspostsRepository {
+  private get newspostRepository() {
+    return AppDataSource.getRepository(NewspostEntity);
+  }
+
+  private get userRepository() {
+    return AppDataSource.getRepository(UserEntity);
+  }
+
   async getAll(params: PaginationParams): Promise<Newspost[]> {
     const { page, size } = params;
-    const allRecords = newspostTable.getAll();
-    const start = page * size;
-    return allRecords.slice(start, start + size);
+    const records = await this.newspostRepository.find({
+      order: {
+        createDate: 'DESC',
+        id: 'DESC'
+      },
+      skip: page * size,
+      take: size
+    });
+
+    return records.map((item) => mapNewspost(item));
   }
 
   async getById(id: number): Promise<Newspost | null> {
-    return newspostTable.getById(id);
+    const record = await this.newspostRepository.findOne({ where: { id } });
+    return record ? mapNewspost(record) : null;
   }
 
-  async create(data: CreateNewspostInput): Promise<Newspost> {
-    return newspostTable.create(data);
+  async create(data: CreateNewspostInput, authorId: number): Promise<Newspost> {
+    const author = await this.userRepository.findOne({ where: { id: authorId } });
+
+    if (!author) {
+      throw new Error(`Author with id ${authorId} was not found`);
+    }
+
+    const createdRecord = this.newspostRepository.create({
+      ...data,
+      author
+    });
+
+    const savedRecord = await this.newspostRepository.save(createdRecord);
+    return mapNewspost(savedRecord);
   }
 
   async update(id: number, update: UpdateNewspostInput): Promise<Newspost | null> {
-    return newspostTable.update(id, update);
+    const existingRecord = await this.newspostRepository.findOne({ where: { id } });
+
+    if (!existingRecord) {
+      return null;
+    }
+
+    const savedRecord = await this.newspostRepository.save({
+      ...existingRecord,
+      ...update
+    });
+
+    return mapNewspost(savedRecord);
   }
 
   async delete(id: number): Promise<number | null> {
-    return newspostTable.delete(id);
+    const result = await this.newspostRepository.delete({ id });
+    return result.affected ? id : null;
   }
 }
 

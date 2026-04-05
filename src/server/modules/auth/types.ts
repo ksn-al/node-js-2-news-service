@@ -1,4 +1,8 @@
-import { User } from '../../../fileDB/types';
+export interface UserRecord {
+  id: number;
+  email: string;
+  password: string;
+}
 
 export interface RegisterInput {
   email: string;
@@ -27,4 +31,7 @@ export interface AuthResponse {
   token: string;
 }
 
-export type PublicUser = Omit<User, 'password'>;
+export interface PublicUser {
+  id: number;
+  email: string;
+}

@@ -1,8 +1,23 @@
-import { Newspost, NewspostGenre, NEWSPOST_GENRES } from '../../../fileDB/types';
+import { NewspostGenre, NEWSPOST_GENRES } from '../../database/models';
 
 export interface PaginationParams {
   page: number;
   size: number;
+}
+
+export interface NewspostAuthor {
+  id: number;
+  email: string;
+}
+
+export interface Newspost {
+  id: number;
+  title: string;
+  text: string;
+  genre: NewspostGenre;
+  isPrivate: boolean;
+  createDate: string;
+  author: NewspostAuthor;
 }
 
 export { NEWSPOST_GENRES };

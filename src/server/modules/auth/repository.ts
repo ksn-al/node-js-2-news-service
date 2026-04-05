@@ -1,32 +1,48 @@
-import { getTable, registerSchema } from '../../../fileDB';
-import { User } from '../../../fileDB/types';
-
-const userSchema = {
-  id: Number,
-  email: String,
-  password: String
-};
-
-registerSchema('users', userSchema);
-
-const usersTable = getTable<User>('users');
+import { AppDataSource } from '../../database/dataSource';
+import { UserEntity } from '../../database/models';
+import { UserRecord } from './types';
 
 class AuthRepository {
-  async findByEmail(email: string): Promise<User | null> {
-    const normalizedEmail = email.trim().toLowerCase();
-    const users = usersTable.getAll();
-    return users.find((item) => item.email.toLowerCase() === normalizedEmail) || null;
+  private get repository() {
+    return AppDataSource.getRepository(UserEntity);
   }
 
-  async createUser(email: string, passwordHash: string): Promise<User> {
-    return usersTable.create({
+  async findByEmail(email: string): Promise<UserRecord | null> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.repository.findOne({ where: { email: normalizedEmail } });
+
+    return user
+      ? {
+          id: user.id,
+          email: user.email,
+          password: user.password
+        }
+      : null;
+  }
+
+  async createUser(email: string, passwordHash: string): Promise<UserRecord> {
+    const savedUser = await this.repository.save({
       email: email.trim().toLowerCase(),
       password: passwordHash
     });
+
+    return {
+      id: savedUser.id,
+      email: savedUser.email,
+      password: savedUser.password
+    };
   }
 
-  async getById(id: number): Promise<User | null> {
-    return usersTable.getById(id);
+  async getById(id: number): Promise<UserRecord | null> {
+    const user = await this.repository.findOne({ where: { id } });
+
+    return user
+      ? {
+          id: user.id,
+          email: user.email,
+          password: user.password
+        }
+      : null;
   }
 }
 

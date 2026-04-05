@@ -50,7 +50,9 @@ export default function NewsList() {
               <span className="news-badge">{item.genre}</span>
               <h2>{item.title}</h2>
               <p className="text-preview">{item.text}</p>
-              <p className="card-meta">{item.isPrivate ? 'Приватна новина' : 'Публічна новина'}</p>
+              <p className="card-meta">
+                {item.isPrivate ? 'Приватна новина' : 'Публічна новина'} · Автор: {item.author?.email || 'Невідомий'}
+              </p>
             </Link>
           ))}
         </div>
