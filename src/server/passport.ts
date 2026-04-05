@@ -1,18 +1,25 @@
 import passport from 'passport';
 import { RequestHandler } from 'express';
-import { Strategy as BearerStrategy } from 'passport-http-bearer';
+import { ExtractJwt, Strategy as JwtStrategy, StrategyOptions } from 'passport-jwt';
 import { UnauthorizedError } from './errors/UnauthorizedError';
+import { AuthTokenPayload } from './modules/auth/types';
+import { JWT_SECRET } from './modules/auth/constants';
 import authService from './modules/auth/service';
 import { logger } from './logger';
 
+const strategyOptions: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: JWT_SECRET
+};
+
 passport.use(
-  new BearerStrategy((token, done) => {
+  new JwtStrategy(strategyOptions, async (payload: AuthTokenPayload, done) => {
     try {
-      const user = authService.verifyToken(token);
+      const user = await authService.getAuthenticatedUserFromTokenPayload(payload);
       done(null, user);
     } catch (error) {
       if (error instanceof Error) {
-        logger.warn('Bearer auth failed', { message: error.message });
+        logger.warn('JWT auth failed', { message: error.message });
       }
 
       done(null, false);
@@ -21,7 +28,7 @@ passport.use(
 );
 
 export const requireAuth: RequestHandler = (req, res, next) => {
-  passport.authenticate('bearer', { session: false }, (error: unknown, user: Express.User | false | null) => {
+  passport.authenticate('jwt', { session: false }, (error: unknown, user: Express.User | false | null) => {
     if (error) {
       next(error);
       return;

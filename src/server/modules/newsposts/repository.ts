@@ -16,26 +16,26 @@ registerSchema('newsposts', newspostSchema);
 const newspostTable = getTable<Newspost>('newsposts');
 
 class NewspostsRepository {
-  getAll(params: PaginationParams): Newspost[] {
+  async getAll(params: PaginationParams): Promise<Newspost[]> {
     const { page, size } = params;
     const allRecords = newspostTable.getAll();
     const start = page * size;
     return allRecords.slice(start, start + size);
   }
 
-  getById(id: number): Newspost | null {
+  async getById(id: number): Promise<Newspost | null> {
     return newspostTable.getById(id);
   }
 
-  create(data: CreateNewspostInput): Newspost {
+  async create(data: CreateNewspostInput): Promise<Newspost> {
     return newspostTable.create(data);
   }
 
-  update(id: number, update: UpdateNewspostInput): Newspost | null {
+  async update(id: number, update: UpdateNewspostInput): Promise<Newspost | null> {
     return newspostTable.update(id, update);
   }
 
-  delete(id: number): number | null {
+  async delete(id: number): Promise<number | null> {
     return newspostTable.delete(id);
   }
 }

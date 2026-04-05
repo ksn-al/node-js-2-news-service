@@ -16,6 +16,13 @@ export interface AuthenticatedUser {
   email: string;
 }
 
+export interface AuthTokenPayload {
+  sub: string;
+  uid: number;
+  iat?: number;
+  exp?: number;
+}
+
 export interface AuthResponse {
   token: string;
 }

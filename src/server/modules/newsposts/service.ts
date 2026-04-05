@@ -4,41 +4,41 @@ import newspostsRepository from './repository';
 import { PaginationParams, CreateNewspostInput, UpdateNewspostInput } from './types';
 
 class NewspostsService {
-  getAll(params: PaginationParams): Newspost[] {
+  async getAll(params: PaginationParams): Promise<Newspost[]> {
     try {
-      return newspostsRepository.getAll(params);
+      return await newspostsRepository.getAll(params);
     } catch (error) {
       throw this.wrapError('Failed to fetch newsposts', error);
     }
   }
 
-  getById(id: number): Newspost | null {
+  async getById(id: number): Promise<Newspost | null> {
     try {
-      return newspostsRepository.getById(id);
+      return await newspostsRepository.getById(id);
     } catch (error) {
       throw this.wrapError(`Failed to fetch newspost with id ${id}`, error);
     }
   }
 
-  create(data: CreateNewspostInput): Newspost {
+  async create(data: CreateNewspostInput): Promise<Newspost> {
     try {
-      return newspostsRepository.create(data);
+      return await newspostsRepository.create(data);
     } catch (error) {
       throw this.wrapError('Failed to create newspost', error);
     }
   }
 
-  update(id: number, update: UpdateNewspostInput): Newspost | null {
+  async update(id: number, update: UpdateNewspostInput): Promise<Newspost | null> {
     try {
-      return newspostsRepository.update(id, update);
+      return await newspostsRepository.update(id, update);
     } catch (error) {
       throw this.wrapError(`Failed to update newspost with id ${id}`, error);
     }
   }
 
-  delete(id: number): number | null {
+  async delete(id: number): Promise<number | null> {
     try {
-      return newspostsRepository.delete(id);
+      return await newspostsRepository.delete(id);
     } catch (error) {
       throw this.wrapError(`Failed to delete newspost with id ${id}`, error);
     }

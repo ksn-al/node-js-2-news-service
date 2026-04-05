@@ -1,36 +1,30 @@
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AuthServiceError } from '../../errors/AuthServiceError';
 import { UnauthorizedError } from '../../errors/UnauthorizedError';
 import { ValidationError } from '../../errors/ValidationError';
+import { BCRYPT_SALT_ROUNDS, JWT_EXPIRES_IN, JWT_SECRET } from './constants';
 import authRepository from './repository';
 import {
   AuthenticatedUser,
+  AuthTokenPayload,
   AuthResponse,
   LoginInput,
   PublicUser,
   RegisterInput
 } from './types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'];
-
-interface AuthTokenPayload {
-  sub: string;
-  uid: number;
-}
-
 class AuthService {
-  register(payload: RegisterInput): AuthResponse {
+  async register(payload: RegisterInput): Promise<AuthResponse> {
     try {
-      const existingUser = authRepository.findByEmail(payload.email);
+      const existingUser = await authRepository.findByEmail(payload.email);
 
       if (existingUser) {
         throw new ValidationError('User with this email already exists');
       }
 
-      const passwordHash = this.hashPassword(payload.password);
-      const createdUser = authRepository.createUser(payload.email, passwordHash);
+      const passwordHash = await this.hashPassword(payload.password);
+      const createdUser = await authRepository.createUser(payload.email, passwordHash);
       return this.buildAuthResponse(createdUser.id, createdUser.email);
     } catch (error) {
       if (error instanceof ValidationError) {
@@ -41,12 +35,11 @@ class AuthService {
     }
   }
 
-  login(payload: LoginInput): AuthResponse {
+  async login(payload: LoginInput): Promise<AuthResponse> {
     try {
-      const user = authRepository.findByEmail(payload.email);
-      const passwordHash = this.hashPassword(payload.password);
+      const user = await authRepository.findByEmail(payload.email);
 
-      if (!user || user.password !== passwordHash) {
+      if (!user || !(await this.comparePassword(payload.password, user.password))) {
         throw new UnauthorizedError('Invalid email or password');
       }
 
@@ -60,9 +53,9 @@ class AuthService {
     }
   }
 
-  getAuthorizedUser(userId: number): PublicUser {
+  async getAuthorizedUser(userId: number): Promise<PublicUser> {
     try {
-      const user = authRepository.getById(userId);
+      const user = await authRepository.getById(userId);
 
       if (!user) {
         throw new UnauthorizedError('User is not authorized');
@@ -81,17 +74,15 @@ class AuthService {
     }
   }
 
-  verifyToken(token: string): AuthenticatedUser {
+  async getAuthenticatedUserFromTokenPayload(payload: AuthTokenPayload): Promise<AuthenticatedUser> {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as AuthTokenPayload;
-
-      if (typeof decoded.uid !== 'number' || typeof decoded.sub !== 'string') {
+      if (typeof payload.uid !== 'number' || typeof payload.sub !== 'string') {
         throw new UnauthorizedError('Token payload is invalid');
       }
 
-      const user = authRepository.getById(decoded.uid);
+      const user = await authRepository.getById(payload.uid);
 
-      if (!user || user.email !== decoded.sub) {
+      if (!user || user.email !== payload.sub) {
         throw new UnauthorizedError('Token is invalid');
       }
 
@@ -123,8 +114,12 @@ class AuthService {
     };
   }
 
-  private hashPassword(password: string): string {
-    return crypto.createHash('sha256').update(password).digest('hex');
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+  }
+
+  private async comparePassword(password: string, passwordHash: string): Promise<boolean> {
+    return bcrypt.compare(password, passwordHash);
   }
 
   private wrapError(message: string, error: unknown): AuthServiceError {

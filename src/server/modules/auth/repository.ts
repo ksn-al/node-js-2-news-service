@@ -12,20 +12,20 @@ registerSchema('users', userSchema);
 const usersTable = getTable<User>('users');
 
 class AuthRepository {
-  findByEmail(email: string): User | null {
+  async findByEmail(email: string): Promise<User | null> {
     const normalizedEmail = email.trim().toLowerCase();
     const users = usersTable.getAll();
     return users.find((item) => item.email.toLowerCase() === normalizedEmail) || null;
   }
 
-  createUser(email: string, passwordHash: string): User {
+  async createUser(email: string, passwordHash: string): Promise<User> {
     return usersTable.create({
       email: email.trim().toLowerCase(),
       password: passwordHash
     });
   }
 
-  getById(id: number): User | null {
+  async getById(id: number): Promise<User | null> {
     return usersTable.getById(id);
   }
 }
