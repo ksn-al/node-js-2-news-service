@@ -1,0 +1,584 @@
+{
+  "info": {
+    "_postman_id": "file-db-newsposts-api",
+    "name": "FileDB Newsposts API",
+    "description": "Complete API testing collection for FileDB Newsposts server with auth flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('token', jsonData.token);",
+                  "  console.log('✓ User registered. Token saved.');",
+                  "} else {",
+                  "  console.log('✗ Registration failed');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('token', jsonData.token);",
+                  "  console.log('✓ User logged in. Token saved.');",
+                  "} else {",
+                  "  console.log('✗ Login failed');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Newsposts CRUD",
+      "item": [
+        {
+          "name": "Get All Newsposts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  if (jsonData.length > 0) {",
+                  "    pm.environment.set('newspost_id', jsonData[0].id);",
+                  "    console.log('✓ Fetched all newsposts. First ID: ' + jsonData[0].id);",
+                  "  } else {",
+                  "    console.log('✓ No newsposts found (empty list)');",
+                  "  }",
+                  "} else {",
+                  "  console.log('✗ Failed to fetch newsposts');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Newspost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  console.log('✓ Fetched newspost: ' + jsonData.title);",
+                  "} else if (pm.response.code === 404) {",
+                  "  console.log('✓ Newspost not found (expected if DB empty)');",
+                  "} else {",
+                  "  console.log('✗ Failed to fetch newspost');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{newspost_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Newspost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('created_newspost_id', jsonData.id);",
+                  "  console.log('✓ Newspost created. ID: ' + jsonData.id);",
+                  "} else {",
+                  "  console.log('✗ Failed to create newspost');",
+                  "  console.log(pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{newspost_title}}\",\n  \"text\": \"{{newspost_text}}\",\n  \"genre\": \"{{newspost_genre}}\",\n  \"isPrivate\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/newsposts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts"]
+            }
+          }
+        },
+        {
+          "name": "Update Newspost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  console.log('✓ Newspost updated: ' + jsonData.title);",
+                  "} else if (pm.response.code === 404) {",
+                  "  console.log('✓ Newspost not found (expected if no posts created)');",
+                  "} else {",
+                  "  console.log('✗ Failed to update newspost');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{newspost_title_updated}}\",\n  \"text\": \"{{newspost_text_updated}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{created_newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{created_newspost_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Newspost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  console.log('✓ Newspost deleted. ID: ' + jsonData.deletedId);",
+                  "} else if (pm.response.code === 404) {",
+                  "  console.log('✓ Newspost not found (expected if no posts created)');",
+                  "} else {",
+                  "  console.log('✗ Failed to delete newspost');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{created_newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{created_newspost_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Scenario",
+      "item": [
+        {
+          "name": "1. Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "2. Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('token', jsonData.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "3. Get All Newsposts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Get Single Newspost (First)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{newspost_id}}"]
+            }
+          }
+        },
+        {
+          "name": "5. Create New Newspost",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('created_newspost_id', jsonData.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Breaking News\",\n  \"text\": \"This is a test newspost created via Postman.\",\n  \"genre\": \"Other\",\n  \"isPrivate\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/newsposts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts"]
+            }
+          }
+        },
+        {
+          "name": "6. Update Newspost",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Breaking News\",\n  \"text\": \"This newspost was updated.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{created_newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{created_newspost_id}}"]
+            }
+          }
+        },
+        {
+          "name": "7. Delete Newspost",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/newsposts/{{created_newspost_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "newsposts", "{{created_newspost_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "testuser@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "testpassword123",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newspost_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "created_newspost_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newspost_title",
+      "value": "Test Newspost",
+      "type": "string"
+    },
+    {
+      "key": "newspost_text",
+      "value": "This is test content for newspost",
+      "type": "string"
+    },
+    {
+      "key": "newspost_genre",
+      "value": "Other",
+      "type": "string"
+    },
+    {
+      "key": "newspost_title_updated",
+      "value": "Updated Newspost Title",
+      "type": "string"
+    },
+    {
+      "key": "newspost_text_updated",
+      "value": "Updated newspost content",
+      "type": "string"
+    }
+  ]
+}
