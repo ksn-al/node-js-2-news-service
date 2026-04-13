@@ -1,54 +1,53 @@
-# FileDB на TypeScript
+# News Service
 
- ДЗ2 на TypeScript.
+Новинний сервіс на Node.js + Express + TypeScript + PostgreSQL з React-клієнтом.
 
-## Що зробила
-- Переписала модуль `fileDB` з JS на TS.
-- Проставила типи для методів і повернення значень.
-- Додала тип для новини: `Newspost` (`src/fileDB/types.ts`).
+## Основні команди
 
-## Файли
-- `src/fileDB/index.ts` - вхід у модуль.
-- `src/fileDB/schema.ts` - реєстрація і отримання схем.
-- `src/fileDB/storage.ts` - читання/запис в `db/db.json`.
-- `src/fileDB/tableFactory.ts` - CRUD-методи таблиці.
-- `src/fileDB/types.ts` - всі основні типи.
-
-## Як використовується таблиця
-```ts
-const newspostTable = fileDB.getTable<Newspost>('newspost');
-
-const newsposts = newspostTable.getAll();
-const newspost = newspostTable.getById(id);
-
-const createdNewspost = newspostTable.create({
-  title: 'У зоопарку Чернігова лисичка народила лисеня',
-  text: '...'
-});
-
-const updatedNewspost = newspostTable.update(id, {
-  title: 'Маленька лисичка'
-});
-
-const deletedId = newspostTable.delete(id);
-```
-
-## Патерни
-1. **Factory Method** — `tableFactory.ts`
-`createTable()` створює таблицю з методами, а не через `new`.
-
-2. **Singleton** — `schema.ts`
-Реєстр схем один на весь модуль.
-
-3. **Facade** — `index.ts`
-Назовні тільки `registerSchema()` і `getTable()`.
-
-## Чому TypeScript
-Типи допомагають не помилятися, код стає зрозуміліший.
-
-## Запуск
 ```bash
 npm install
-npm run build
-npm run test
+npm --prefix client install
+npm run lint
+npm run build:server
+npm run build:all
+npm run server-dev
 ```
+
+## Змінні середовища
+
+Створіть `.env` на основі `.env.example`.
+
+- Для локального PostgreSQL сервіс використовує `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`.
+- Для хмарної БД можна передати один `DATABASE_URL`.
+- Для продакшену обов'язково задайте `JWT_SECRET`.
+
+## CI
+
+GitHub Actions знаходиться у `.github/workflows/ci.yml` і запускається:
+
+- на кожен push у `main`
+- на кожен pull request у `main`
+
+У pipeline є обов'язкові етапи:
+
+- встановлення backend і frontend залежностей
+- перевірка стилів через ESLint
+- білд TypeScript у JavaScript
+
+## CD на Render
+
+Для деплою додано `render.yaml` у корінь репозиторію. Render автоматично підхоплює зміни з GitHub і передеплоює сервіс після push у головну гілку.
+
+### Як підняти сервіс
+
+1. Запушити репозиторій на GitHub.
+2. Створити PostgreSQL у ElephantSQL або іншому хмарному провайдері та отримати `DATABASE_URL`.
+3. У Render вибрати `New + Blueprint` і підключити цей репозиторій.
+4. Підтвердити сервіс із `render.yaml`.
+5. Додати змінні середовища:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - за потреби `JWT_EXPIRES_IN`, `BCRYPT_SALT_ROUNDS`
+6. Дочекатися першого build/deploy.
+
+Після цього Render буде автоматично оновлювати сервіс з репозиторію.

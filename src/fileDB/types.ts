@@ -24,7 +24,7 @@ export interface User extends BaseRecord {
 
 type OptionalCreateDate<T extends BaseRecord> = 'createDate' extends keyof T
   ? { createDate?: T[Extract<'createDate', keyof T>] }
-  : {};
+  : Record<never, never>;
 
 export type CreateInput<T extends BaseRecord> =
   Omit<T, 'id' | 'createDate'> & OptionalCreateDate<T>;

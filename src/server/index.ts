@@ -38,7 +38,7 @@ app.get(/^(?!\/api).*/, (req, res) => {
 app.use(errorHandler);
 
 // Запуск сервера
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT) || 8000;
 
 async function startServer(): Promise<void> {

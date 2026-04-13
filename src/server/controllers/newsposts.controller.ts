@@ -12,7 +12,7 @@ export const getNewsposts = withErrorHandling(async (req, res) => {
   res.json(newsposts);
 });
 
-export const throwDemoError = withErrorHandling((_req, _res) => {
+export const throwDemoError = withErrorHandling(() => {
   newspostsService.throwDemoError();
 });
 

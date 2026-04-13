@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: filedb-news-service
+    env: node
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    buildCommand: npm ci && npm --prefix client ci && npm run build:all
+    startCommand: npm run server
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: 10
