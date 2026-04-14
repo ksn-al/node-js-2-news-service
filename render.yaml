@@ -6,7 +6,7 @@ services:
     autoDeploy: true
     healthCheckPath: /
     buildCommand: npm ci && npm --prefix client ci && npm run build:all
-    startCommand: npm run server
+    startCommand: node dist/server/index.js
     envVars:
       - key: NODE_VERSION
         value: 20
